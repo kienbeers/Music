@@ -9,7 +9,8 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 function App() {
   return (
     <>
-    <Router>
+      <Home></Home>
+    {/* <Router>
           <div className="App">
             <Routes>
               {publicRoutes.map((route, index) => {
@@ -29,7 +30,7 @@ function App() {
               })}
             </Routes>
           </div>
-        </Router>
+        </Router> */}
     </>
   );
 }
