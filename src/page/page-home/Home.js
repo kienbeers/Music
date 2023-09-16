@@ -2,13 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import music from "../../assets/images/sap30.jpg";
 import cha from "../../assets/music/cha gia roi dung khong.mp3";
 import {
-  getHome,
-  getSong,
-  getPlaylists,
-  searchByKeyword,
-  getLyric
-} from "nhaccuatui-api-full";
-import {
   RetweetOutlined,
   UserOutlined,
   UnorderedListOutlined,
@@ -127,10 +120,7 @@ const Home = () => {
   const deleteInterval = () => {
     clearInterval(intervals);
   };
-  const data = searchByKeyword("sap 30")
   useEffect(() => {
-    console.log(data.PromiseResult);
-    console.log(getLyric("YLqSO8rom0S4"));
     setDurationTime(audioRef.current.duration)
     if (durationTime != 0 || currentTime != 0) {
       if (currentTime >= Math.floor(durationTime)) {
