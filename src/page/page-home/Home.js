@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import music from "../../assets/images/sap30.jpg";
-import sap30 from "../../assets/music/sap30.mp3";
+import cha from "../../assets/music/cha gia roi dung khong.mp3";
 import {
-  LeftCircleOutlined,
-  RightCircleOutlined,
-  PlayCircleOutlined,
+  getHome,
+  getSong,
+  getPlaylists,
+  searchByKeyword,
+  getLyric
+} from "nhaccuatui-api-full";
+import {
   RetweetOutlined,
-  RollbackOutlined,
-  SwapOutlined,
-  InfoCircleOutlined,
   UserOutlined,
   UnorderedListOutlined,
   SearchOutlined,
@@ -21,27 +22,134 @@ import {
 import { Button, Input, Progress } from "antd";
 
 const Home = () => {
-  const [pause, setPause] = useState(true);
-  const [audio, setAudio] = useState(new Audio(sap30));
-  const next = () => {};
-  const prev = () => {};
-  const play = () => {
-    if (pause == true) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-    setPause(!pause);
-  };
-  const replay = () => {};
+  const [playPause, setPlayPause] = useState(true);
+  const audioRef = useRef();
+  const [currentTime, setCurrentTime] = useState(0);
+  const [durationTime, setDurationTime] = useState(0)
+  const [time, setTime] = useState();
+  const [progessPresent, setProgessPresent] = useState(0);
+  const [intervals, setIntervals] = useState();
+  const [currentMusic, setCurentMusic] = useState(0);
   const songs = [
     {
-      name: "Sắp 30",
-      singer: "Trịnh Đình Quang",
-      path: "../../assets/music/sap30.mp3",
-      image: "../../assets/images/sap30.jpg",
+        "name": "Sing me to sleep",
+        "author": "Alan Walker",
+        "url": "https://cdn.discordapp.com/attachments/775740994595323954/775741533789224960/Alan_Walker_-_Sing_Me_To_SleepMP3_160K.mp3",
+        "id": 0,
+        "links": {
+            "images": [
+                {
+                    "url": "https://i.scdn.co/image/ab6761610000e5ebc02d416c309a68b04dc94576"
+                },
+                {
+                    "url": "https://i.scdn.co/image/ab67616d0000b273a108e07c661f9fc54de9c43a"
+                }
+            ]
+        }
     },
-  ];
+    {
+        "name": "Fade-NCS Release",
+        "author": "Alan Walker",
+        "url": "https://cdn.discordapp.com/attachments/775740994595323954/775741536591806484/Alan_Walker_-_Fade_NCS_ReleaseMP3_160K.mp3",
+        "id": 1,
+        "links": {
+            "images": [
+                {
+                    "url": "https://i.scdn.co/image/ab6761610000e5ebc02d416c309a68b04dc94576"
+                },
+                {
+                    "url": "https://i.scdn.co/image/ab67616d0000b273a108e07c661f9fc54de9c43a"
+                }
+            ]
+        }
+    },
+    {
+        "name": "She-NCS Release",
+        "author": "Andromedik",
+        "url": "https://cdn.discordapp.com/attachments/775740994595323954/775741544149549096/Andromedik_-_SHE_NCS_ReleaseMP3_160K.mp3",
+        "id": 2,
+        "links": {
+            "images": [
+                {
+                    "url": "https://i.scdn.co/image/ab6761610000e5eb37db62ee361f796bef5b49a6"
+                },
+                {
+                    "url": "https://i.scdn.co/image/ab67616d0000b2737b8d8ca1a8e14506c8f35233"
+                }
+            ]
+        }
+    },
+    {
+        "name": "About you-NCS Release",
+        "author": "Ascence",
+        "url": "https://cdn.discordapp.com/attachments/775740994595323954/775741547203002389/Ascence_-_About_You_NCS_ReleaseMP3_160K.mp3",
+        "id": 3,
+        "links": {
+            "images": [
+                {
+                    "url": "https://i.scdn.co/image/ab6761610000e5eb6e50f29c671af8aff68b321d"
+                },
+                {
+                    "url": "https://i.scdn.co/image/ab67616d0000b27335ca35166aba974dd2dd29a2"
+                }
+            ]
+        }
+    },
+  ]
+  const next = () => {
+    if(currentMusic < songs.length-1) {
+      setCurentMusic(currentMusic + 1)
+    }
+  };
+  const prev = () => {
+    if(currentMusic != 0) {
+    setCurentMusic(currentMusic - 1)}
+  };
+  const replay = () => {};
+  const play = () => {
+    audioRef.current.play();
+    setPlayPause(!playPause);
+    getCurrentTime();
+  };
+  const pause = () => {
+    audioRef.current.pause();
+    setPlayPause(!playPause);
+    deleteInterval();
+  }
+  const getCurrentTime = () => {
+    console.log("vào");
+    const interval = setInterval(() => {
+      setCurrentTime(Math.floor(audioRef.current.currentTime));
+    }, 500);
+    setIntervals(interval);
+    return () => clearInterval(interval);
+  }
+  const deleteInterval = () => {
+    clearInterval(intervals);
+  };
+  const data = searchByKeyword("sap 30")
+  useEffect(() => {
+    console.log(data.PromiseResult);
+    console.log(getLyric("YLqSO8rom0S4"));
+    setDurationTime(audioRef.current.duration)
+    if (durationTime != 0 || currentTime != 0) {
+      if (currentTime >= Math.floor(durationTime)) {
+        pause();
+      }
+    }
+  }, [currentTime])
+  const secondsToTime = (seconds) => {
+    if (seconds == 0 || isNaN(seconds)) {
+      return '0:00';
+    }
+    const minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+    if (minutes === 0) {
+      return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    } else {
+      return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+  };
   return (
     <>
       <div className="ctn">
@@ -50,119 +158,67 @@ const Home = () => {
             <div className="ctn-sidebar col-md-4 col-xs-12">
               <div className="ctn-card">
                 <div className="img-music">
-                  <img src={music} />
+                  <img src={songs[currentMusic].links.images[0].url} />
                 </div>
                 <div className="info-music">
-                  <p className="info-name">Sắp 30</p>
-                  <p className="info-singer">Trịnh Đình Quang</p>
+                  <p className="info-name">{ songs[currentMusic].name}</p>
+                  <p className="info-singer">{ songs[currentMusic].author}</p>
                 </div>
                 <div className="operation">
                   <div className="operation-directional">
-                    <Button
-                      shape="circle"
-                      title="info"
-                      icon={
-                        <InfoOutlined
-                          style={{ fontSize: "20px", color: "white" }}
-                        />
-                      }
-                      size={20}
-                      style={{
-                        backgroundColor: "rgba(105, 102, 103, 0.3)",
-                        border: "no-border",
-                      }}
-                    />
-                    <Button
-                      shape="circle"
-                      title="prev"
-                      onClick={() => prev()}
-                      icon={
-                        <StepBackwardOutlined
-                          style={{ fontSize: "20px", color: "white" }}
-                        />
-                      }
-                      size={20}
-                      style={{
-                        backgroundColor: "rgba(105, 102, 103, 0.3)",
-                        border: "no-border",
-                      }}
-                    />
-                    {pause == false ? (
-                      <Button
-                        shape="circle"
-                        title="pause"
-                        onClick={() => play()}
-                        icon={
-                          <PauseOutlined
-                            style={{ fontSize: "20px", color: "white" }}
-                          />
-                        }
-                        size={20}
-                        style={{
-                          backgroundColor: "rgba(105, 102, 103, 0.3)",
-                          border: "no-border",
-                        }}
+                    <div className="control">
+                      <InfoOutlined
+                        style={{ fontSize: "20px"}}
                       />
+                    </div>
+                    <div className="control" onClick={()=> prev()}>
+                      <StepBackwardOutlined
+                        style={{ fontSize: "20px"}}
+                      />
+                    </div>
+                    {playPause == false ? (
+                      <div className="control" onClick={() => pause()}>
+                        <PauseOutlined
+                          style={{ fontSize: "20px"}}
+                        />
+                      </div>
                     ) : (
-                      <Button
-                        shape="circle"
-                        title="play"
+                      <div
+                        className="control"
                         onClick={() => play()}
-                        icon={
-                          <CaretRightOutlined
-                            style={{ fontSize: "20px", color: "white" }}
-                          />
-                        }
-                        size={20}
-                        style={{
-                          backgroundColor: "rgba(105, 102, 103, 0.3)",
-                          border: "no-border",
-                        }}
-                      />
+                        style={{ paddingLeft: "2.5%" }}
+                      >
+                        <CaretRightOutlined
+                          style={{ fontSize: "20px"}}
+                        />
+                      </div>
                     )}
-                    <Button
-                      shape="circle"
-                      onClick={() => next()}
-                      title="next"
-                      icon={
-                        <StepForwardOutlined
-                          style={{ fontSize: "20px", color: "white" }}
-                        />
-                      }
-                      size={20}
-                      style={{
-                        backgroundColor: "rgba(105, 102, 103, 0.3)",
-                        border: "no-border",
-                      }}
-                    />
+                    <div className="control" onClick={() => next()}>
+                      <StepForwardOutlined
+                        style={{ fontSize: "20px"}}
+                      />
+                    </div>
 
-                    <Button
-                      shape="circle"
-                      onClick={() => replay()}
-                      title="replay"
-                      icon={
-                        <RetweetOutlined
-                          style={{ fontSize: "20px", color: "white" }}
-                        />
-                      }
-                      size={20}
-                      style={{
-                        backgroundColor: "rgba(105, 102, 103, 0.3)",
-                        border: "no-border",
-                      }}
-                    />
+                    <div className="control" onClick={() => replay()}>
+                      <RetweetOutlined
+                        style={{ fontSize: "20px"}}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="operation-progess">
                   <Progress
-                    percent={30}
+                    percent={currentTime/durationTime * 100}
                     strokeColor={"#FF0000"}
                     showInfo={false}
                   />
                   <div className="progess">
-                    <p className="present">2:42</p>
-                    <p className="end">5:36</p>
+                    <p className="present">{secondsToTime(currentTime)}</p>
+                    <p className="end">{secondsToTime(Math.floor(durationTime))}</p>
                   </div>
+                </div>
+                <div>
+                  <audio ref={audioRef} src={songs[currentMusic].url} autoPlay={!playPause} />
                 </div>
               </div>
             </div>
@@ -171,7 +227,7 @@ const Home = () => {
                 <div className="d-flex justify-content-end">
                   <Input
                     className="me-2"
-                    style={{ width: "20%" }}
+                    style={{ width: "40%" }}
                     placeholder="Search"
                   />
                   <SearchOutlined
@@ -188,12 +244,12 @@ const Home = () => {
                   />
                 </div>
                 <div className="content-baner">
-                  <div className="list">
+                  <div className="list mt-2">
                     <p>Danh sách đang phát</p>
                     <ul>
-                      <li>Bài 1</li>
-                      <li>Bài 2</li>
-                      <li>Bài 3</li>
+                      {songs.map((song) => {
+                        return <li>{ song.name}</li>
+                      })}
                     </ul>
                   </div>
                 </div>
